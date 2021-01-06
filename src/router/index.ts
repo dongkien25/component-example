@@ -1,35 +1,40 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import Hello from '../components/HelloWorld.vue'
 import Greet from '../components/Greet.vue'
-import Form01 from '../components/Form01.vue'
+import FormAirline from '../components/FormAirline.vue'
 import AirlineTable from '../components/AirlineTable.vue'
-
+import PassengerTable from '../components/PassengerTable.vue'
+import FormPassenger from '../components/FormPassenger.vue'
 Vue.use(Router)
 
 export default new Router({
   mode: 'history',
   routes: [
-    {
-      path: '/hello',
-      name: 'Hello',
-      component: Hello
-    },
+
     {
       path: '/greet',
       name: 'Greet',
       component: Greet
-    },
-    {
-      path: '/formAirline',
-      name: 'FormAirline',
-      component: Form01
     }, 
     {
       path: '/airline-table',
       name: 'AirlineTable',
       component: AirlineTable
-    }
-    
+    },
+    {
+      path: '/passenger-table',
+      name: 'PassengerTable',
+      component: PassengerTable
+    },
+    {
+      path: '/form-passenger',
+      name: 'FormPassenger',
+      component: FormPassenger
+    },
+    {
+      path: '/form-airline',
+      name: 'FormAirline',
+      component: FormAirline
+    },
   ]
 })
