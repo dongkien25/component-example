@@ -5,6 +5,8 @@ import FormAirline from '../components/FormAirline.vue'
 import AirlineTable from '../components/AirlineTable.vue'
 import PassengerTable from '../components/PassengerTable.vue'
 import FormPassenger from '../components/FormPassenger.vue'
+import ValidateForm from '../components/ValidateForm.vue'
+import Test from '../components/Test.vue'
 Vue.use(Router)
 
 export default new Router({
@@ -36,5 +38,16 @@ export default new Router({
       name: 'FormAirline',
       component: FormAirline
     },
+    {
+      path: '/validate-form',
+      name: 'ValidateForm',
+      component: ValidateForm
+    },
+    {
+      path: '/test',
+      name: 'Tets',
+      component: Test
+    }
+    
   ]
 })

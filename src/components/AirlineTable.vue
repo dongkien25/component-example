@@ -20,14 +20,13 @@
             <td><img class="img-logo" :src="row.logo" alt="" /></td>
             <td>
               <div class="group-btn">
-                <button class="control-btn btn-edit">Edit</button>
                 <button
-                  @click="
-                    dialogDetail = true;
-                    getById(row.id);
-                  "
-                  class="control-btn"
+                  class="control-btn btn-edit"
+                  @click="displayEditDialog(row.id)"
                 >
+                  Edit
+                </button>
+                <button class="control-btn" @click="getDetail(row.id)">
                   Detail
                 </button>
                 <button
@@ -63,7 +62,7 @@
     </v-dialog>
 
     <v-dialog v-model="dialogDetail" hide-overlay width="500">
-      <v-card>
+      <v-card v-if="airline">
         <v-card-title class="dialog-title">Airline</v-card-title>
         <v-divider></v-divider>
 
@@ -98,30 +97,150 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-dialog v-model="dialogEdit" hide-overlay width="500">
+      <v-card v-if="airline">
+        <v-card-title class="dialog-title">Edit Airline</v-card-title>
+        <div class="">
+          <v-form ref="form" v-model="valid" class="form" lazy-validation>
+            <v-text-field
+              :rules="nameRules"
+              :value="airline.name"
+              solo
+              clearable
+            ></v-text-field>
+
+            <v-text-field
+              :rules="[(v) => !!v || 'Item is required']"
+              :value="airline.country"
+              solo
+              clearable
+            ></v-text-field>
+            <v-file-input accept="image/*" label="Select a logo"></v-file-input>
+
+            <v-text-field
+              :rules="[(v) => !!v || 'Item is required']"
+              :value="airline.slogan"
+              solo
+              clearable
+            ></v-text-field>
+
+            <v-text-field
+              :rules="[(v) => !!v || 'Item is required']"
+              :value="airline.head_quaters"
+              solo
+              clearable
+            ></v-text-field>
+
+            <v-text-field
+              :rules="webRules"
+              :value="airline.website"
+              solo
+              clearable
+            ></v-text-field>
+
+            <v-col id="established" cols="12" sm="12" md="12">
+              <v-menu
+                ref="menu"
+                v-model="menu"
+                :close-on-content-click="false"
+                :return-value.sync="date"
+                transition="scale-transition"
+                offset-y
+                min-width="290px"
+              >
+                <template v-slot:activator="{ on, attrs }">
+                  <v-text-field
+                    v-model="date"
+                    :rules="[(v) => !!v || 'Item is required']"
+                    prepend-icon="mdi-calendar"
+                    readonly
+                    v-bind="attrs"
+                    v-on="on"
+                    solo
+                    clearable
+                  ></v-text-field>
+                </template>
+                <v-date-picker v-model="date" no-title scrollable>
+                  <v-spacer></v-spacer>
+                  <v-btn text color="primary" @click="menu = false">
+                    Cancel
+                  </v-btn>
+                  <v-btn text color="primary" @click="selectDate"> OK </v-btn>
+                </v-date-picker>
+              </v-menu>
+            </v-col>
+          </v-form>
+        </div>
+        <v-card-actions>
+          <v-btn
+            :disabled="!valid"
+            color="primary"
+            class="mr-16"
+            @click="onSubmit()"
+          >
+            Submit
+          </v-btn>
+          <v-spacer></v-spacer>
+          <v-btn color="error" class="ml-16" @click="dialogEdit = false">
+            Close
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
 const urlGet = "https://api.instantwebtools.net/v1/airlines";
-const axios = require("axios");
+import axios from "axios";
+
+interface Airline {
+  id: number;
+  name: string;
+  country: string;
+  logo: string;
+  slogan: string;
+  head_quaters: string;
+  website: string;
+  established: string;
+}
+
 @Component
 export default class AirlineTable extends Vue {
   dialogDelete = false;
   dialogDetail = false;
-  rows = [];
-  cols = [];
-  airline = {};
+  dialogEdit = false;
+  imgUrl = '';
+  valid = true;
+  menu = false;
+  date = new Date().toISOString().substr(0, 10);
+  rows: Airline[] = [];
+  cols: string[] = [];
+  airline!: Airline;
+  name = "";
+  country = "";
+  nameRules = [
+    (v: string) => !!v || "Name is required",
+    (v: string) =>
+      (v && v.length <= 10) || "Name must be less than 10 characters",
+  ];
+  email = "";
+  webRules = [
+    (v: string) => !!v || "Website is required",
+    (v: string) =>
+      /^((https?|ftp|smtp):\/\/)?(www.)?[a-z0-9]+\.[a-z]+(\/[a-zA-Z0-9#]+\/?)*$/.test(
+        v
+      ) || "Website must be valid",
+  ];
   totalPage = 0;
   size = 50;
   numPage() {}
-  getById(id) {
-    axios.get(`${urlGet}/${id}`).then((response) => {
-      this.airline = response.data;
-      console.log("airline", this.airline);
-    });
+  async getById(id: number) {
+    const { data } = await axios.get(`${urlGet}/${id}`);
+    this.airline = data;
   }
-  getAirline(currentPage) {
+  getAirline(currentPage: number) {
     axios.get(urlGet).then((response) => {
       let rowData = response.data;
       let start = (currentPage - 1) * this.size;
@@ -134,9 +253,25 @@ export default class AirlineTable extends Vue {
       this.cols = this.cols.slice(0, 4);
     });
   }
+  selectDate() {
+    const menu: any = this.$refs.menu;
+    menu.save(this.date);
+  }
   totalAirline = 10;
   mounted() {
     this.getAirline(1);
+  }
+  // reset() {
+  //   this.$refs.form.reset();
+  // }
+  onSubmit() {}
+  async getDetail(id: number) {
+    await this.getById(id);
+    this.dialogDetail = true;
+  }
+  async displayEditDialog(id: number) {
+    await this.getById(id);
+    this.dialogEdit = true;
   }
 }
 </script>
@@ -152,10 +287,10 @@ export default class AirlineTable extends Vue {
   text-transform: capitalize;
 }
 .create-link {
-    text-decoration: none;
-    align-self: flex-start;
-    margin-left: 50px;
-    width: 90px;
+  text-decoration: none;
+  align-self: flex-start;
+  margin-left: 50px;
+  width: 90px;
 }
 
 .table-data {

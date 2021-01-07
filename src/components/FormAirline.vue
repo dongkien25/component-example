@@ -1,8 +1,8 @@
 <template>
   <div class="form-airline">
-    <form class="form" id="form-airline" action="">
+    <form class="form" id="form-airline" @submit.prevent="onSubmit" action="">
       <h2 class="heading">Form for Airline</h2>
-      <div class="form-group" @submit.prevent="onSubmit">
+      <div class="form-group">
         <label class="form-label" for="">Name :</label>
         <input
           id="name"

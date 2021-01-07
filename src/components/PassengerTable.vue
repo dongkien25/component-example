@@ -26,8 +26,7 @@
                 <button class="control-btn btn-edit">Edit</button>
                 <button
                   @click="
-                    dialogDetail = true;
-                    getById(row._id);
+                    getDetail(row._id)
                   "
                   class="control-btn"
                 >
@@ -98,6 +97,41 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-dialog v-model="dialogEdit" hide-overlay width="500">
+      <v-card >
+        <v-card-title class="dialog-title">Edit Passenger</v-card-title>
+        <div class="">
+          <v-form ref="form" v-model="valid" class="form" lazy-validation>
+            <v-text-field
+              :value="passenger.name"
+              solo
+              clearable
+            ></v-text-field>
+
+            <v-text-field
+              :rules="[(v) => !!v || 'Item is required']"
+              :value="passenger.trips"
+              solo
+              clearable
+            ></v-text-field>
+          </v-form>
+        </div>
+        <v-card-actions>
+          <v-btn
+            :disabled="!valid"
+            color="primary"
+            class="mr-16"
+            @click="onSubmit()"
+          >
+            Submit
+          </v-btn>
+          <v-spacer></v-spacer>
+          <v-btn color="error" class="ml-16" @click="dialogEdit = false">
+            Close
+          </v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -109,6 +143,8 @@ const axios = require("axios");
 export default class PassengerTale extends Vue {
   dialogDelete = false;
   dialogDetail = false;
+  dialogEdit = false;
+  valid = true;
   rows = [];
   cols = [];
   passenger = {};
@@ -151,6 +187,13 @@ export default class PassengerTale extends Vue {
       .catch(error => {
           console.log(error);
       })
+  }
+  getDetail(id){
+    this.getById(id);
+    this.dialogDetail =true;
+  }
+  onSubmit() {
+
   }
 }
 </script>
