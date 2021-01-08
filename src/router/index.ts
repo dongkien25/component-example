@@ -7,6 +7,7 @@ import PassengerTable from '../components/PassengerTable.vue'
 import FormPassenger from '../components/FormPassenger.vue'
 import ValidateForm from '../components/ValidateForm.vue'
 import Test from '../components/Test.vue'
+import Example from '../components/Example.vue'
 Vue.use(Router)
 
 export default new Router({
@@ -47,7 +48,13 @@ export default new Router({
       path: '/test',
       name: 'Tets',
       component: Test
+    },
+    {
+      path: '/example',
+      name: 'Example',
+      component: Example
     }
+
     
   ]
 })

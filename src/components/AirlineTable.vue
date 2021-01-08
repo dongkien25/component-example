@@ -195,7 +195,7 @@ import { Vue, Component, Prop } from "vue-property-decorator";
 const urlGet = "https://api.instantwebtools.net/v1/airlines";
 import axios from "axios";
 
-interface Airline {
+export interface Airline {
   id: number;
   name: string;
   country: string;

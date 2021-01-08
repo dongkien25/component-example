@@ -1,120 +1,147 @@
 <template>
-  <v-form ref="form" v-model="valid" class="form" lazy-validation>
-    <v-text-field
-      v-model="name"
-      counter="10"
-      :rules="nameRules"
-      label="Name"
-      clearable
-      solo
-    ></v-text-field>
+  <div class="form-passenger">
+    <form class="form" id="form-passenger" action="">
+      <h2 class="heading">Form for Passenger</h2>
+      <div class="form-group" @submit.prevent="onSubmit">
+        <label class="form-label" for="">Name :</label>
+        <input
+          id="name"
+          v-model="name"
+          type="text"
+          placeholder=""
+          class="form-control"
+        />
+      </div>
 
-    <v-text-field
-      v-model="country"
-      :rules ="[ v => !!v || 'Item is required']"
-      label="Country"
-      solo
-    ></v-text-field>
-    <v-text-field
-      v-model="logo"
-      
-      label="Select logo"
-      solo
-    ></v-text-field>
+      <div class="form-group">
+        <label class="form-label" for="">Trips :</label>
+        <input
+          id="trips"
+          v-model="trips"
+          type="text"
+          placeholder=""
+          class="form-control"
+        />
+      </div>
+      <div class="form-group">
 
-    <v-text-field
-      v-model="Slogan"
-      :rules ="[ v => !!v || 'Item is required']"
-      label="Slogan"
-      solo
-    ></v-text-field>
-
-    <v-text-field
-      v-model="head_quaters"
-      :rules ="[ v => !!v || 'Item is required']"
-      label="Head Quaters"
-      solo
-    ></v-text-field>
-
-    <v-text-field
-      v-model="website"
-      :rules="webRules"
-      label="Website"
-      solo
-    ></v-text-field>
-
-    <v-col id="established" cols="12" sm="12" md="12">
-        <v-menu
-            ref="menu"
-            v-model="menu"
-            :close-on-content-click="false"
-            :return-value.sync="date"
-            transition="scale-transition"
-            offset-y
-            min-width="290px"
-        >
-            <template v-slot:activator="{ on, attrs }">
-              <v-text-field
-                v-model="date"
-                :rules ="[ v => !!v || 'Item is required']"
-                prepend-icon="mdi-calendar"
-                readonly
-                v-bind="attrs"
-                v-on="on"
-                solo
-              ></v-text-field>
-            </template>
-            <v-date-picker v-model="date" no-title scrollable>
-              <v-spacer></v-spacer>
-              <v-btn text color="primary" @click="menu = false"> Cancel </v-btn>
-              <v-btn text color="primary" @click="$refs.menu.save(date)">
-                OK
-              </v-btn>
-            </v-date-picker>
-          </v-menu>
-    </v-col>
-    <v-btn 
-    :disabled="!valid" 
-    color="primary"
-    class="mr-16"
-     @click="validate();onSubmit()">
-      Submit
-    </v-btn>
-
-    <v-btn 
-    color="error" 
-    class="ml-16" 
-    @click="reset"> 
-    Reset Form 
-    </v-btn>
-  </v-form>
+      </div>
+      <div class="form-group">
+        <label class="form-label" for="">Airline :</label>
+        <v-btn @click="showListAirline()" class="pick-airline-btn"> Select an airline </v-btn>
+        <v-dialog v-model="dialogListAirline" hide-overlay width="600">
+          <v-card>
+            <v-card-title class="dialog-title">List of Airline</v-card-title>
+            <v-divider></v-divider>
+            <v-item-group class="wrap-list-airline" mandatory>
+                <v-row class="ma-0">
+                    <v-col v-for="(airline,index) in listAirline" :key="index" cols="12" md="4">
+                        <v-item  class="logo-item">
+                          
+                            <img @click="selectLogo(airline.id)" class="img-logo" :src="`${airline.logo}`" height="150"/>
+                        </v-item>
+                    </v-col>
+                </v-row>
+            </v-item-group>
+            <v-card-actions class="confirm-btn">
+              <v-btn color="primary"> Select </v-btn>
+              <v-btn color="error" @click="dialogListAirline = false"> Close </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+      </div>
+      <button class="form-submit">Submit</button>
+    </form>
+    
+  </div>
 </template>
 <script>
 import { Vue, Component, Prop } from "vue-property-decorator";
-
+const urlGet = "https://api.instantwebtools.net/v1/airlines";
+const axios = require("axios");
 @Component
-export default class ValidateForm extends Vue {
-  date = new Date().toISOString().substr(0, 10);
-  menu = false;
-  valid = true;
-  name = "";
-  nameRules = [
-    (v) => !!v || "Name is required",
-    (v) => (v && v.length <= 10) || "Name must be less than 10 characters",
-  ];
-  email = "";
-  webRules = [
-    (v) => !!v || "Website is required",
-    (v) => /^((https?|ftp|smtp):\/\/)?(www.)?[a-z0-9]+\.[a-z]+(\/[a-zA-Z0-9#]+\/?)*$/.test(v) || "Website must be valid",
-  ];
-  validate() {
-    this.$refs.form.validate();
-  }
-  reset() {
-    this.$refs.form.reset();
-  }
-  resetValidation() {
-    this.$refs.form.resetValidation();
-  }
+export default class FormPassenger extends Vue {
+    dialogListAirline =  false;
+    listAirline = [];
+    selectedAirline = {};
+    onSubmit() {
+
+    }
+    getListAirline(){
+        axios.get(urlGet)
+        .then((response => {
+            this.listAirline = response.data.slice(0,6);
+            console.log(this.listAirline)
+        }))
+    }
+    showListAirline(){
+      this.getListAirline();
+      this.dialogListAirline = true
+    }
+    selectLogo(id) {
+       for(let airline of this.listAirline){
+         if(airline.id === id){
+           this.selectedAirline = airline
+         }
+       }
+       this.dialogListAirline = false
+    }
+    
+
 }
 </script>
+<style>
+.img-logo {
+  width: 150px;
+  height: 100px;
+  object-fit: contain;
+}
+.form {
+  width: 460px;
+  min-height: 100px;
+  padding: 32px 24px;
+  text-align: center;
+  background: #fff;
+  border-radius: 2px;
+  margin: 24px;
+  align-self: center;
+  box-shadow: 0 2px 5px 0 rgba(51, 62, 73, 0.1);
+}
+.form-group {
+  display: flex;
+  margin-bottom: 16px;
+  flex-direction: column;
+}
+.form-label {
+  text-align: left;
+}
+
+.form-control {
+  height: 40px;
+  padding: 8px 12px;
+  border: 1px solid #b3b3b3;
+  border-radius: 3px;
+  outline: none;
+  font-size: 1.4rem;
+  text-decoration: none;
+}
+.form-submit {
+  outline: none;
+  background-color: #1dbfaf;
+  margin-top: 12px;
+  padding: 12px 16px;
+  font-weight: 600;
+  color: #fff;
+  border: none;
+  width: 100%;
+  font-size: 20px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.form-submit:hover {
+  background-color: #1ac7b6;
+}
+#established {
+  padding: 0;
+}
+</style>
