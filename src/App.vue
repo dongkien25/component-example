@@ -1,19 +1,22 @@
 <template>
   <v-app>
-    <v-main >
+    <v-main>
       <div class="main-btn-group">
-        <v-btn>
-          <router-link class="btn-link" to="/airline-table">Airline Table</router-link>
-        </v-btn>
-        <v-btn>
-          <router-link class="btn-link" to="/passenger-table">Passenger Table</router-link>
-        </v-btn>
-        <v-btn>
-          <router-link class="btn-link" to="/test">Test</router-link>
-        </v-btn>
-		<v-btn>
-          <router-link class="btn-link" to="/example">Example</router-link>
-        </v-btn>
+        <router-link class="btn-link" to="/airline-table">
+          <v-btn color="primary"> Airline Table </v-btn>
+        </router-link>
+
+        <router-link class="btn-link" to="/passenger-table">
+          <v-btn color="primary">Passenger Table</v-btn>
+        </router-link>
+
+        <router-link class="btn-link" to="/test">
+          <v-btn color="primary">Test</v-btn>
+        </router-link>
+
+        <router-link class="btn-link" to="/example">
+          <v-btn color="primary">Example</v-btn>
+        </router-link>
       </div>
 
       <!-- <router-link to="/validate-form">Validate Form</router-link> -->

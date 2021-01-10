@@ -4,14 +4,14 @@ import router from './router'
 import vuetify from './plugins/vuetify';
 import Vuex from 'vuex' 
 
-
-import module from './module/state'
+import store from './module/store'
+// import module from './module/state'
 Vue.use(Vuex)
 
-const store = new Vuex.Store({
-  state: module.state,
-  mutations: module.mutations
-})
+// const store = new Vuex.Store({
+//   state: module.state,
+//   mutations: module.mutations
+// })
 
 Vue.config.productionTip = false
 new Vue({

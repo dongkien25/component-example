@@ -8,7 +8,11 @@
       <table class="table-data" id="airlineTable">
         <thead>
           <tr>
-            <th v-for="(col, index) in cols" :key="index">{{ col }}</th>
+            <!-- <th v-for="(col, index) in cols" :key="index">{{ col }}</th> -->
+            <th>id</th>
+            <th>name</th>
+            <th>country</th>
+            <th>logo</th>
             <th>Control</th>
           </tr>
         </thead>
@@ -192,6 +196,7 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
+import { State, Mutation,Action } from "vuex-class";
 const urlGet = "https://api.instantwebtools.net/v1/airlines";
 import axios from "axios";
 
@@ -215,15 +220,18 @@ export default class AirlineTable extends Vue {
   valid = true;
   menu = false;
   date = new Date().toISOString().substr(0, 10);
-  rows: Airline[] = [];
+  // rows: Airline[] = [];
   cols: string[] = [];
   airline!: Airline;
   name = "";
   country = "";
+  @State("airlineList") rows!: Airline[];
+  @Mutation("getListAirline") getAllAirline!: Function;
+  @Action("fetchAirlines") fetchAirlines!: any;
   nameRules = [
     (v: string) => !!v || "Name is required",
     (v: string) =>
-      (v && v.length <= 10) || "Name must be less than 10 characters",
+      (v && v.length <= 20) || "Name must be less than 10 characters",
   ];
   email = "";
   webRules = [
@@ -237,8 +245,13 @@ export default class AirlineTable extends Vue {
   size = 50;
   numPage() {}
   async getById(id: number) {
-    const { data } = await axios.get(`${urlGet}/${id}`);
-    this.airline = data;
+    // const { data } = await axios.get(`${urlGet}/${id}`);
+    // this.airline = data;
+    for (let row of this.rows) {
+      if (row.id === id) {
+        this.airline = row;
+      }
+    }
   }
   getAirline(currentPage: number) {
     axios.get(urlGet).then((response) => {
@@ -259,7 +272,9 @@ export default class AirlineTable extends Vue {
   }
   totalAirline = 10;
   mounted() {
-    this.getAirline(1);
+    // this.getAirline(1);
+    this.fetchAirlines();
+
   }
   // reset() {
   //   this.$refs.form.reset();

@@ -11,26 +11,22 @@
 
     <v-text-field
       v-model="country"
-      :rules ="[ v => !!v || 'Item is required']"
+      :rules="[(v) => !!v || 'Item is required']"
       label="Country"
       outlined
     ></v-text-field>
-    <v-file-input
-    accept="image/*"
-    label="Select a logo"
-    
-  ></v-file-input>
+    <v-file-input accept="image/*" label="Select a logo"></v-file-input>
 
     <v-text-field
       v-model="Slogan"
-      :rules ="[ v => !!v || 'Item is required']"
+      :rules="[(v) => !!v || 'Item is required']"
       label="Slogan"
       outlined
     ></v-text-field>
 
     <v-text-field
       v-model="head_quaters"
-      :rules ="[ v => !!v || 'Item is required']"
+      :rules="[(v) => !!v || 'Item is required']"
       label="Head Quaters"
       outlined
     ></v-text-field>
@@ -43,47 +39,38 @@
     ></v-text-field>
 
     <v-col id="established" cols="12" sm="12" md="12">
-        <v-menu
-            ref="menu"
-            v-model="menu"
-            :close-on-content-click="false"
-            :return-value.sync="date"
-            transition="scale-transition"
-            offset-y
-            min-width="290px"
-        >
-            <template v-slot:activator="{ on, attrs }">
-              <v-text-field
-                v-model="date"
-                :rules ="[ v => !!v || 'Item is required']"
-                prepend-icon="mdi-calendar"
-                readonly
-                v-bind="attrs"
-                v-on="on"
-                outlined
-              ></v-text-field>
-            </template>
-            <v-date-picker v-model="date" no-title scrollable>
-              <v-spacer></v-spacer>
-              <v-btn text color="primary" @click="menu = false"> Cancel </v-btn>
-              <v-btn text color="primary" @click="$refs.menu.save(date)">
-                OK
-              </v-btn>
-            </v-date-picker>
-          </v-menu>
+      <v-menu
+        ref="menu"
+        v-model="menu"
+        :close-on-content-click="false"
+        :return-value.sync="date"
+        transition="scale-transition"
+        offset-y
+        min-width="290px"
+      >
+        <template v-slot:activator="{ on, attrs }">
+          <v-text-field
+            v-model="date"
+            :rules="[(v) => !!v || 'Item is required']"
+            prepend-icon="mdi-calendar"
+            readonly
+            v-bind="attrs"
+            v-on="on"
+            outlined
+          ></v-text-field>
+        </template>
+        <v-date-picker v-model="date" no-title scrollable>
+          <v-spacer></v-spacer>
+          <v-btn text color="primary" @click="menu = false"> Cancel </v-btn>
+          <v-btn text color="primary" @click="$refs.menu.save(date)">
+            OK
+          </v-btn>
+        </v-date-picker>
+      </v-menu>
     </v-col>
-    <v-btn 
-    color="error" 
-    class="mr-16" 
-    @click="reset"> 
-    Reset Form 
-    </v-btn>
+    <v-btn color="error" class="mr-16" @click="reset"> Reset Form </v-btn>
     <!-- <v-spacer></v-spacer> -->
-    <v-btn 
-    :disabled="!valid" 
-    color="primary"
-    class="ml-16"
-     @click="validate();onSubmit()">
+    <v-btn :disabled="!valid" color="primary" class="ml-16" @click="validate()">
       Submit
     </v-btn>
   </v-form>
@@ -97,6 +84,10 @@ export default class ValidateForm extends Vue {
   menu = false;
   valid = true;
   name = "";
+  country = "";
+  head_quaters = "";
+  Slogan = "";
+  website = "";
   nameRules = [
     (v) => !!v || "Name is required",
     (v) => (v && v.length <= 10) || "Name must be less than 10 characters",
@@ -104,8 +95,12 @@ export default class ValidateForm extends Vue {
   email = "";
   webRules = [
     (v) => !!v || "Website is required",
-    (v) => /^((https?|ftp|smtp):\/\/)?(www.)?[a-z0-9]+\.[a-z]+(\/[a-zA-Z0-9#]+\/?)*$/.test(v) || "Website must be valid",
+    (v) =>
+      /^((https?|ftp|smtp):\/\/)?(www.)?[a-z0-9]+\.[a-z]+(\/[a-zA-Z0-9#]+\/?)*$/.test(
+        v
+      ) || "Website must be valid",
   ];
+
   validate() {
     this.$refs.form.validate();
   }
