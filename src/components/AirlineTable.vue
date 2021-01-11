@@ -16,8 +16,8 @@
             <th>Control</th>
           </tr>
         </thead>
-        <tbody>
-          <tr v-for="row in rows" :key="row.id">
+        <tbody v-if="isLoading === 'done'">
+          <tr v-for="row in listAirlines" :key="row.id">
             <td>{{ row.id }}</td>
             <td>{{ row.name }}</td>
             <td>{{ row.country }}</td>
@@ -44,6 +44,13 @@
           </tr>
         </tbody>
       </table>
+      <div v-if="isLoading === 'loading'" class="spinner-load">
+        <v-progress-circular
+          indeterminate
+          color="primary"
+        ></v-progress-circular>
+      </div>
+
       <div class="pagination">
         <span
           class="number"
@@ -54,16 +61,10 @@
         >
       </div>
     </div>
-    <v-dialog v-model="dialogDelete" hide-overlay width="300">
-      <v-card>
-        <v-card-title class="dialog-title">Are you sure?</v-card-title>
-        <v-divider></v-divider>
-        <v-card-actions class="confirm-btn">
-          <v-btn color="error"> Yes </v-btn>
-          <v-btn color="primary" @click="dialogDelete = false"> No </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <DialogDelete
+      :dialogDelete="dialogDelete"
+      @closeDeleteDialog="dialogDelete = false"
+    ></DialogDelete>
 
     <v-dialog v-model="dialogDetail" hide-overlay width="500">
       <v-card v-if="airline">
@@ -72,6 +73,7 @@
 
         <div class="detail-content">
           <!-- <li v-for="(a,index) in airline" :key="index">{{a}} : {{airline[a]}}</li> -->
+
           <div class="detail-item">
             <div class="item-title">ID</div>
             <div class="item-content">{{ airline.id }}</div>
@@ -196,36 +198,44 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
-import { State, Mutation,Action } from "vuex-class";
+import { State, Mutation, Action } from "vuex-class";
+import DialogDelete from "./DialogDelete.vue";
 const urlGet = "https://api.instantwebtools.net/v1/airlines";
 import axios from "axios";
+import { LoadingType } from "@/module/store";
+import Airline from "@/model/AirlineModel";
 
-export interface Airline {
-  id: number;
-  name: string;
-  country: string;
-  logo: string;
-  slogan: string;
-  head_quaters: string;
-  website: string;
-  established: string;
-}
+const defaultAriline = {
+  id: 1,
+  name: "",
+  country: "",
+  logo: "",
+  slogan: "",
+  head_quaters: "",
+  website: "",
+  established: "",
+};
 
-@Component
+@Component({
+  components: {
+    DialogDelete,
+  },
+})
 export default class AirlineTable extends Vue {
   dialogDelete = false;
   dialogDetail = false;
   dialogEdit = false;
-  imgUrl = '';
+  imgUrl = "";
   valid = true;
-  menu = false;
+  
   date = new Date().toISOString().substr(0, 10);
   // rows: Airline[] = [];
   cols: string[] = [];
-  airline!: Airline;
+  airline = defaultAriline;
   name = "";
   country = "";
-  @State("airlineList") rows!: Airline[];
+  @State("isLoading") isLoading!: LoadingType;
+  @State("airlineList") listAirlines!: Airline[];
   @Mutation("getListAirline") getAllAirline!: Function;
   @Action("fetchAirlines") fetchAirlines!: any;
   nameRules = [
@@ -244,10 +254,10 @@ export default class AirlineTable extends Vue {
   totalPage = 0;
   size = 50;
   numPage() {}
-  async getById(id: number) {
+  getById(id: number) {
     // const { data } = await axios.get(`${urlGet}/${id}`);
     // this.airline = data;
-    for (let row of this.rows) {
+    for (let row of this.listAirlines) {
       if (row.id === id) {
         this.airline = row;
       }
@@ -260,25 +270,27 @@ export default class AirlineTable extends Vue {
       let end = start + this.size;
       this.totalPage = Math.ceil(response.data.length / this.size);
       console.log("totalpage:", this.totalPage);
-      this.rows = response.data.slice(start, end);
+      this.listAirlines = response.data.slice(start, end);
 
-      this.cols = Object.keys(this.rows[0]);
+      this.cols = Object.keys(this.listAirlines[0]);
       this.cols = this.cols.slice(0, 4);
     });
   }
+  menu:any = this.$refs.menu;
   selectDate() {
-    const menu: any = this.$refs.menu;
-    menu.save(this.date);
+    // const menu: any = this.$refs.menu;
+    this.menu.save(this.date);
   }
   totalAirline = 10;
-  mounted() {
+  created() {
     // this.getAirline(1);
     this.fetchAirlines();
-
+    console.log("list ariline", this.listAirlines);
   }
   // reset() {
   //   this.$refs.form.reset();
   // }
+
   onSubmit() {}
   async getDetail(id: number) {
     await this.getById(id);
@@ -366,6 +378,16 @@ export default class AirlineTable extends Vue {
   object-fit: contain;
 }
 
+.spinner-load {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+}
 /* dialog */
 .group-btn {
   display: flex;

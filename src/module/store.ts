@@ -2,18 +2,45 @@ import axios from "axios";
 import Vue from "vue";
 import Vuex from "vuex";
 import Airline from "../model/AirlineModel";
+import Passenger from '@/model/PassengerModel'
+
+import airlinesService from '@/services/airlinesService'
+import passengersService from '@/services/passengersService'
 
 Vue.use(Vuex);
 
-const baseUrl = "https://api.instantwebtools.net/v1/";
-export default new Vuex.Store({
+
+export enum LoadingType {
+  IDLE= "idle",
+  LOADING = "loading",
+  DONE = "done",
+  ERROR = "error"
+}
+
+export interface State {
+  num: number
+  airlineList: Airline[]
+  isLoading: LoadingType
+  passengerList: Passenger[] 
+}
+
+
+export default new Vuex.Store<State>({
   state: {
     num: 0,
     airlineList: Array<Airline>(),
+    passengerList : Array<Passenger>(),
+    isLoading: LoadingType.IDLE
   },
   mutations: {
-    getListAirline(state, arilineList: Airline[]) {
+    getListAirline(state: State, arilineList: Airline[]) {
       state.airlineList = arilineList;
+    },
+    getListPassenger(state: State, passengerList: Passenger[]){
+      state.passengerList = passengerList;
+    },
+    updateLoading(state: State, loading: LoadingType) {
+      state.isLoading = loading
     },
     add(state,payload:number) {
         state.num +=payload   
@@ -23,9 +50,19 @@ export default new Vuex.Store({
     }
   },
   actions: {
-    async fetchAirlines({ commit }, currentPage: number) {
-      const response = await axios.get(`${baseUrl}airlines`);
+
+    async fetchAirlines({ commit }) {
+      commit("updateLoading", LoadingType.LOADING)
+      const response = await airlinesService.getAirlines()
+      commit("updateLoading", LoadingType.DONE)
       commit("getListAirline", response.data);
     },
+    async fetchPassenger({commit}) {
+      commit("updateLoading", LoadingType.LOADING)
+      const response = await passengersService.getPassengers()
+      console.log('response', response)
+      commit("updateLoading", LoadingType.DONE)
+      commit("getListPassenger", response.data.data);
+    }
   },
 });

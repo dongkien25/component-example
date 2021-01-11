@@ -1,16 +1,16 @@
 <template>
   <div class="parent">
-    <ButtonAdd @add="add"></ButtonAdd>
+    <ButtonAdd></ButtonAdd>
     <Result :number="number"></Result>
-    <ButtonMinus @minus="minus"></ButtonMinus>
+    <ButtonMinus></ButtonMinus>
   </div>
 </template>
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
 import ButtonAdd from "../components/ButtonAdd.vue";
 import ButtonMinus from "../components/ButtonMinus.vue";
-import Result from "../components/Result.vue";
-import {mapMutations} from 'vuex';
+import Result from "@/components/Result.vue";
+import { mapMutations } from "vuex";
 @Component({
   components: {
     ButtonAdd,
@@ -19,16 +19,15 @@ import {mapMutations} from 'vuex';
   },
 })
 export default class Example extends Vue {
-  number = '';
-  add(name: string) {
-    this.number=name;
-  }
-  minus(name: string) {
-    // this.number--;
-    this.number = name
-  }
+  number = "";
 
-  
+  // add(name: string) {
+  //   this.number = name;
+  // }
+  // minus(name: string) {
+  //   // this.number--;
+  //   this.number = name;
+  // }
 }
 </script>
 <style scoped>

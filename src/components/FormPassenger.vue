@@ -79,7 +79,7 @@
 </template>
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
-import { Airline } from './AirlineTable.vue'
+import Airline from '@/model/AirlineModel'
 import axios from 'axios'
 
 const urlGet = "https://api.instantwebtools.net/v1/";

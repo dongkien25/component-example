@@ -16,20 +16,20 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="row in rows" :key="row._id">
-            <td>{{ row._id }}</td>
-            <td>{{ row.name }}</td>
-            <td>{{ row.trips }}</td>
-            <td><img class="img-logo" :src="row.airline.logo" alt="" /></td>
+          <tr v-for="passenger in listPassenger" :key="passenger._id">
+            <td>{{ passenger._id }}</td>
+            <td>{{ passenger.name }}</td>
+            <td>{{ passenger.trips }}</td>
+            <td><img class="img-logo" :src="passenger.airline.logo" alt="" /></td>
             <td>
               <div class="group-btn">
                 <button
                   class="control-btn btn-edit"
-                  @click="getDialogEdit(row._id)"
+                  @click="getDialogEdit(passenger._id)"
                 >
                   Edit
                 </button>
-                <button @click="getDetail(row._id)" class="control-btn">
+                <button @click="getDetail(passenger._id)" class="control-btn">
                   Detail
                 </button>
                 <button
@@ -43,31 +43,30 @@
           </tr>
         </tbody>
       </table>
+      <div
+        v-if="isLoading === 'loading' && listPassenger == []"
+        class="spinner-load"
+      >
+        <v-progress-circular
+          indeterminate
+          color="primary"
+        ></v-progress-circular>
+      </div>
       <div class="pagination">
         <span @click="getPage(0, 5)" class="number"> 1 </span>
         <span @click="getPage(1, 5)" class="number"> 2 </span>
       </div>
     </div>
-    <v-dialog v-model="dialogDelete" hide-overlay width="500">
-      <v-card>
-        <v-card-title>Confirm delete</v-card-title>
-        <v-card-text>Are you sure?</v-card-text>
-        <v-divider></v-divider>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="error" @click="deletePassenger(passenger._id)"> Yes </v-btn>
-          <v-btn color="primary" @click="dialogDelete = false"> No </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <DialogDelete
+      :dialogDelete="dialogDelete"
+      @closeDeleteDialog="dialogDelete = false"
+    ></DialogDelete>
 
-    <v-dialog v-model="dialogDetail" hide-overlay width="500">
+    <!-- <v-dialog v-model="dialogDetail" hide-overlay width="500">
       <v-card v-if="passenger">
         <v-card-title class="dialog-title">Passenger</v-card-title>
         <v-divider></v-divider>
-
         <div class="detail-content">
-          <!-- <li v-for="(a,index) in airline" :key="index">{{a}} : {{airline[a]}}</li> -->
           <div class="detail-item">
             <div class="item-title">ID</div>
             <div class="item-content">{{ passenger._id }}</div>
@@ -95,13 +94,20 @@
             </div>
           </div>
         </div>
-
         <v-card-actions>
           <v-spacer></v-spacer>
           <v-btn color="error" @click="dialogDetail = false"> Close </v-btn>
         </v-card-actions>
       </v-card>
-    </v-dialog>
+    </v-dialog> -->
+    
+    <DialogDetail
+      :dialogDetail="dialogDetail"
+      @closeDetailDialog ="dialogDetail = false"
+      itemType="Passenger"
+      :itemList="itemList"
+    ></DialogDetail>
+
     <v-dialog v-model="dialogEdit" hide-overlay width="500">
       <v-card v-if="passenger">
         <v-card-title class="dialog-title">Edit Passenger</v-card-title>
@@ -173,18 +179,20 @@
             Submit
           </v-btn>
           <v-dialog v-model="dialogConFirmEdit" hide-overlay width="500">
-      <v-card>
-        <v-card-title>Confirm Edit</v-card-title>
-        <v-card-text>Do you want to update this passenger?</v-card-text>
-        <v-divider></v-divider>
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <v-btn color="error" > Yes </v-btn>
-          <v-btn color="primary" @click="dialogConFirmEdit = false"> No </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-          
+            <v-card>
+              <v-card-title>Confirm Edit</v-card-title>
+              <v-card-text>Do you want to update this passenger?</v-card-text>
+              <v-divider></v-divider>
+              <v-card-actions>
+                <v-spacer></v-spacer>
+                <v-btn color="error"> Yes </v-btn>
+                <v-btn color="primary" @click="dialogConFirmEdit = false">
+                  No
+                </v-btn>
+              </v-card-actions>
+            </v-card>
+          </v-dialog>
+
           <v-spacer></v-spacer>
           <v-btn color="error" class="ml-16" @click="dialogEdit = false">
             Close
@@ -197,22 +205,35 @@
 
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
-import { Airline } from "./AirlineTable.vue";
-
-export interface Passenger {
-  _id: string;
-  name: string;
-  trips: number;
-  airline: Airline;
-}
-export interface ResponsePassenger {
-  totalPassengers: number;
-  totalPages: number;
-  data: Passenger[];
-}
+import { State, Mutation, Action } from "vuex-class";
+import { LoadingType } from "@/module/store";
+import DialogDelete from "./DialogDelete.vue";
+import Passenger from "@/model/PassengerModel";
+import Airline from "@/model/AirlineModel";
+import ResponsePassenger from "@/model/ResponsePassenger";
+import DialogDetail from "@/components/DialogDetail.vue";
 const urlGet = "https://api.instantwebtools.net/v1/";
 const axios = require("axios");
-@Component
+const defaultPassenger = {
+  _id: "",
+  name: "",
+  trips: 0,
+  airline: new Airline(),
+};
+const defaultItem = {
+  title:'',
+  content: '',
+}
+export interface ItemDetail {
+  title: string;
+  content: string ;
+}
+@Component({
+  components: {
+    DialogDelete,
+    DialogDetail
+  },
+})
 export default class PassengerTale extends Vue {
   dialogDelete = false;
   dialogDetail = false;
@@ -224,20 +245,24 @@ export default class PassengerTale extends Vue {
   airline!: Airline;
   listAirline: Airline[] = [];
   valid = true;
-  rows: Passenger[] = [];
+  // listPassenger: Passenger[] = [];
   cols = [];
-  passenger!: Passenger;
+  passenger = defaultPassenger;
   deleteId = 0;
-  //   elementPerPage = 10;
-  //   currentPage = 1;
+  item = defaultItem;
+  itemList: ItemDetail[] =[];
+  @State("isLoading") isLoading!: LoadingType;
+  @State("passengerList") listPassenger!: Passenger[];
+  @Mutation("getListPassenger") getListPassenger!: Function;
+  @Action("fetchPassenger") fetchPassenger: any;
   getPage(page: number, size: number) {
     axios
       .get(`${urlGet}passenger?page=${page}&size=${size}`)
       .then((response: any) => {
-        this.rows = response.data.data;
+        this.listPassenger = response.data.data;
 
-        //   this.cols = Object.keys(this.rows[0]);
-        //   console.log('cols',this.rows[0])
+        //   this.cols = Object.keys(this.listPassenger[0]);
+        //   console.log('cols',this.listPassenger[0])
       });
   }
   getById(id: string) {
@@ -246,40 +271,59 @@ export default class PassengerTale extends Vue {
     //   this.passenger = response.data;
     //   console.log(this.passenger.airline.logo)
     // });
-    for (let row of this.rows) {
-      if (row._id === id) {
-        this.passenger = row;
-        this.airline = row.airline;
+    for (let passenger of this.listPassenger) {
+      if (passenger._id === id) {
+        this.passenger = passenger;
+        this.airline = passenger.airline;
+        
       }
     }
   }
+  
   showListAirline() {
     this.dialogListAirline = true;
   }
-  mounted() {
-    axios.get(`${urlGet}passenger?page=0&size=40`).then((response: any) => {
-      this.rows = response.data.data;
-      //   this.cols = Object.keys(this.rows[0]);
-      //   console.log('cols',this.rows[0])
-    });
-    axios.get(`${urlGet}airlines`).then((response: any) => {
-      this.listAirline = response.data;
-    });
+  created() {
+    // axios.get(`${urlGet}passenger?page=0&size=40`).then((response: any) => {
+    //   this.listPassenger = response.data.data;
+    //   //   this.cols = Object.keys(this.listPassenger[0]);
+    //   //   console.log('cols',this.listPassenger[0])
+    // });
+    // axios.get(`${urlGet}airlines`).then((response: any) => {
+    //   this.listAirline = response.data;
+    // });
+    this.fetchPassenger();
+    console.log("listPassenger", this.listPassenger);
   }
-  deletePassenger(id: string){
-      axios.delete(`${urlGet}/${id}`)
-      .then((response:any) => {
-          console.log(response)
-          if(response.status === 200){
-              console.log('Delete success')
-          }
+  deletePassenger(id: string) {
+    axios
+      .delete(`${urlGet}/${id}`)
+      .then((response: any) => {
+        console.log(response);
+        if (response.status === 200) {
+          console.log("Delete success");
+        }
       })
-      .catch((error:string) => {
-          console.log(error);
-      })
+      .catch((error: string) => {
+        console.log(error);
+      });
   }
   getDetail(id: string) {
     this.getById(id);
+    this.itemList = [];
+    let arrTitle = Object.keys(this.passenger);
+    console.log('item outsit', this.item)
+    for(let p in this.passenger){
+      this.item.title = p;
+    
+      console.log('title', this.item.title)
+      this.item.content = ''
+      console.log('itemt in loop', this.item)
+      this.itemList.push(this.item);
+      console.log('itemList in loop', this.item)
+    }
+    console.log('arrTitle', arrTitle)
+    console.log('itemList', this.itemList)
     this.dialogDetail = true;
   }
   getDialogEdit(id: string) {
@@ -293,7 +337,7 @@ export default class PassengerTale extends Vue {
     this.selected = true;
   }
   onSubmit() {
-    this.dialogConFirmEdit = true
+    this.dialogConFirmEdit = true;
   }
 }
 </script>
