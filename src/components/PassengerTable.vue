@@ -20,7 +20,9 @@
             <td>{{ passenger._id }}</td>
             <td>{{ passenger.name }}</td>
             <td>{{ passenger.trips }}</td>
-            <td><img class="img-logo" :src="passenger.airline.logo" alt="" /></td>
+            <td>
+              <img class="img-logo" :src="passenger.airline.logo" alt="" />
+            </td>
             <td>
               <div class="group-btn">
                 <button
@@ -100,12 +102,13 @@
         </v-card-actions>
       </v-card>
     </v-dialog> -->
-    
+
     <DialogDetail
       :dialogDetail="dialogDetail"
-      @closeDetailDialog ="dialogDetail = false"
+      @closeDetailDialog="dialogDetail = false"
       itemType="Passenger"
-      :itemList="itemList"
+      :listDetailTitle="listDetailTitle"
+      :listDetailContent="listDetailContent"
     ></DialogDetail>
 
     <v-dialog v-model="dialogEdit" hide-overlay width="500">
@@ -220,21 +223,18 @@ const defaultPassenger = {
   trips: 0,
   airline: new Airline(),
 };
-const defaultItem = {
-  title:'',
-  content: '',
-}
-export interface ItemDetail {
-  title: string;
-  content: string ;
-}
+const defaultListDetailContent = ["","",0,""]
+ 
+
 @Component({
   components: {
     DialogDelete,
-    DialogDetail
+    DialogDetail,
   },
 })
 export default class PassengerTale extends Vue {
+  listDetailTitle = ["id", "name", "trips", "airline"];
+  listDetailContent = defaultListDetailContent;
   dialogDelete = false;
   dialogDetail = false;
   dialogEdit = false;
@@ -248,9 +248,7 @@ export default class PassengerTale extends Vue {
   // listPassenger: Passenger[] = [];
   cols = [];
   passenger = defaultPassenger;
-  deleteId = 0;
-  item = defaultItem;
-  itemList: ItemDetail[] =[];
+
   @State("isLoading") isLoading!: LoadingType;
   @State("passengerList") listPassenger!: Passenger[];
   @Mutation("getListPassenger") getListPassenger!: Function;
@@ -275,11 +273,10 @@ export default class PassengerTale extends Vue {
       if (passenger._id === id) {
         this.passenger = passenger;
         this.airline = passenger.airline;
-        
       }
     }
   }
-  
+
   showListAirline() {
     this.dialogListAirline = true;
   }
@@ -309,21 +306,9 @@ export default class PassengerTale extends Vue {
       });
   }
   getDetail(id: string) {
-    this.getById(id);
-    this.itemList = [];
-    let arrTitle = Object.keys(this.passenger);
-    console.log('item outsit', this.item)
-    for(let p in this.passenger){
-      this.item.title = p;
-    
-      console.log('title', this.item.title)
-      this.item.content = ''
-      console.log('itemt in loop', this.item)
-      this.itemList.push(this.item);
-      console.log('itemList in loop', this.item)
-    }
-    console.log('arrTitle', arrTitle)
-    console.log('itemList', this.itemList)
+    this.getById(id); 
+    this.listDetailContent = [this.passenger._id,this.passenger.name,this.passenger.name,this.airline.logo]
+    console.log("listDetail", this.listDetailContent)
     this.dialogDetail = true;
   }
   getDialogEdit(id: string) {

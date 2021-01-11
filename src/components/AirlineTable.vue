@@ -66,14 +66,12 @@
       @closeDeleteDialog="dialogDelete = false"
     ></DialogDelete>
 
-    <v-dialog v-model="dialogDetail" hide-overlay width="500">
+    <!-- <v-dialog v-model="dialogDetail" hide-overlay width="500">
       <v-card v-if="airline">
         <v-card-title class="dialog-title">Airline</v-card-title>
         <v-divider></v-divider>
 
         <div class="detail-content">
-          <!-- <li v-for="(a,index) in airline" :key="index">{{a}} : {{airline[a]}}</li> -->
-
           <div class="detail-item">
             <div class="item-title">ID</div>
             <div class="item-content">{{ airline.id }}</div>
@@ -102,7 +100,16 @@
           <v-btn color="error" @click="dialogDetail = false"> Close </v-btn>
         </v-card-actions>
       </v-card>
-    </v-dialog>
+    </v-dialog> -->
+
+    <DialogDetail
+      :dialogDetail="dialogDetail"
+      @closeDetailDialog="dialogDetail = false"
+      itemType="Passenger"
+      :listDetailTitle="listDetailTitle"
+      :listDetailContent="listDetailContent"
+    ></DialogDetail>
+
     <v-dialog v-model="dialogEdit" hide-overlay width="500">
       <v-card v-if="airline">
         <v-card-title class="dialog-title">Edit Airline</v-card-title>
@@ -204,7 +211,7 @@ const urlGet = "https://api.instantwebtools.net/v1/airlines";
 import axios from "axios";
 import { LoadingType } from "@/module/store";
 import Airline from "@/model/AirlineModel";
-
+import DialogDetail from "@/components/DialogDetail.vue";
 const defaultAriline = {
   id: 1,
   name: "",
@@ -215,19 +222,23 @@ const defaultAriline = {
   website: "",
   established: "",
 };
+const defaultListDetailContent = [0, "", "", ""];
 
 @Component({
   components: {
     DialogDelete,
+    DialogDetail,
   },
 })
 export default class AirlineTable extends Vue {
+  listDetailTitle = ["id", "name", "country", "logo"];
+  listDetailContent = defaultListDetailContent;
   dialogDelete = false;
   dialogDetail = false;
   dialogEdit = false;
   imgUrl = "";
   valid = true;
-  
+
   date = new Date().toISOString().substr(0, 10);
   // rows: Airline[] = [];
   cols: string[] = [];
@@ -276,10 +287,12 @@ export default class AirlineTable extends Vue {
       this.cols = this.cols.slice(0, 4);
     });
   }
-  menu:any = this.$refs.menu;
+  $refs!: {
+    form: HTMLMenuElement
+  }
   selectDate() {
     // const menu: any = this.$refs.menu;
-    this.menu.save(this.date);
+    this.$refs.menu.save(this.date);
   }
   totalAirline = 10;
   created() {
@@ -292,12 +305,13 @@ export default class AirlineTable extends Vue {
   // }
 
   onSubmit() {}
-  async getDetail(id: number) {
-    await this.getById(id);
+  getDetail(id: number) {
+    this.getById(id);
+    this.listDetailContent = [this.airline.id,this.airline.name,this.airline.country,this.airline.logo]
     this.dialogDetail = true;
   }
-  async displayEditDialog(id: number) {
-    await this.getById(id);
+  displayEditDialog(id: number) {
+    this.getById(id);
     this.dialogEdit = true;
   }
 }

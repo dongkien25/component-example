@@ -4,16 +4,18 @@
       <v-card-title class="dialog-title">{{ itemType }}</v-card-title>
       <v-divider></v-divider>
       <div class="wrap-detail">
-        <div v-for="(item,index) in itemList" :key="index" class="detail-content">
+        <div v-for="n in 4" :key="n" class="detail-content">
           <div class="detail-item">
-            <div class="item-title">{{ item.title }}</div>
-            <div class="item-content">
-              {{ item.content }}
-              <!-- <img
+            <div class="item-title">{{ listDetailTitle[n-1] }}</div>
+            <div v-if="n == 4" class="item-content">
+              <img
                 class="img-logo"
-                
+                :src="listDetailContent[n-1]"
                 alt=""
-              /> -->
+              />
+            </div>
+            <div v-else class="item-content">
+              {{ listDetailContent[n-1] }}
             </div>
           </div>
           <v-divider></v-divider>
@@ -40,19 +42,21 @@
 </template>
 
 <script lang="ts">
-export interface ItemDetail {
-  title: string;
-  content: string ;
-}
 import { Vue, Component, Prop } from "vue-property-decorator";
 @Component
 export default class DialogDetail extends Vue {
   @Prop() dialogDetail = false
   @Prop() itemType = '';
-  @Prop() itemList!: ItemDetail[];
+  @Prop() listDetailTitle = [];
+  @Prop() listDetailContent = []
    
   closeDetailDialog(){
     this.$emit('closeDetailDialog')
   }
 }
 </script>
+<style scoped>
+.item-title{
+  text-transform: capitalize;
+}
+</style>
