@@ -1,0 +1,1 @@
+export const baseUrl = "https://api.instantwebtools.net/v1/";

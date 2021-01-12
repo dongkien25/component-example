@@ -40,13 +40,12 @@
 
     <v-col id="established" cols="12" sm="12" md="12">
       <v-menu
-        ref="menu"
         v-model="menu"
         :close-on-content-click="false"
-        :return-value.sync="date"
+        :nudge-right="40"
         transition="scale-transition"
         offset-y
-        min-width="290px"
+        min-width="auto"
       >
         <template v-slot:activator="{ on, attrs }">
           <v-text-field
@@ -56,15 +55,11 @@
             readonly
             v-bind="attrs"
             v-on="on"
-            outlined
+            solo
+            clearable
           ></v-text-field>
         </template>
-        <v-date-picker v-model="date" no-title scrollable>
-          <v-spacer></v-spacer>
-          <v-btn text color="primary" @click="menu = false"> Cancel </v-btn>
-          <v-btn text color="primary" @click="$refs.menu.save(date)">
-            OK
-          </v-btn>
+        <v-date-picker v-model="date" no-title scrollable @input="menu = false">
         </v-date-picker>
       </v-menu>
     </v-col>
@@ -75,9 +70,11 @@
     </v-btn>
   </v-form>
 </template>
-<script>
+<script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
+import { State, Mutation, Action } from "vuex-class";
 
+import rules from "@/modules/rules";
 @Component
 export default class ValidateForm extends Vue {
   date = new Date().toISOString().substr(0, 10);
@@ -88,19 +85,12 @@ export default class ValidateForm extends Vue {
   head_quaters = "";
   Slogan = "";
   website = "";
-  nameRules = [
-    (v) => !!v || "Name is required",
-    (v) => (v && v.length <= 10) || "Name must be less than 10 characters",
-  ];
   email = "";
-  webRules = [
-    (v) => !!v || "Website is required",
-    (v) =>
-      /^((https?|ftp|smtp):\/\/)?(www.)?[a-z0-9]+\.[a-z]+(\/[a-zA-Z0-9#]+\/?)*$/.test(
-        v
-      ) || "Website must be valid",
-  ];
-
+  nameRules = rules.nameRules;
+  webRules = rules.webRules;
+  $refs!: {
+    form: HTMLFormElement;
+  };
   validate() {
     this.$refs.form.validate();
   }

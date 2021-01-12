@@ -1,60 +1,51 @@
-import Vue from 'vue'
-import Router from 'vue-router'
-import Greet from '../components/Greet.vue'
-import FormAirline from '../components/FormAirline.vue'
-import AirlineTable from '../components/AirlineTable.vue'
-import PassengerTable from '../components/PassengerTable.vue'
-import FormPassenger from '../components/FormPassenger.vue'
-import ValidateForm from '../components/ValidateForm.vue'
-import Test from '../components/Test.vue'
-import Example from '../components/Example.vue'
-Vue.use(Router)
+import Vue from "vue";
+import Router from "vue-router";
+import Greet from "@/components/Greet.vue";
+import FormAirline from "@/pages/FormAirline.vue";
+import AirlineTable from "@/pages/AirlineTable.vue";
+import PassengerTable from "@/pages/PassengerTable.vue";
+import FormPassenger from "@/pages/FormPassenger.vue";
+import ValidateForm from "@/components/ValidateForm.vue";
+import Example from "@/components/Example.vue";
+Vue.use(Router);
 
 export default new Router({
-  mode: 'history',
+  mode: "history",
   routes: [
-
     {
-      path: '/greet',
-      name: 'Greet',
-      component: Greet
-    }, 
-    {
-      path: '/airline-table',
-      name: 'AirlineTable',
-      component: AirlineTable
+      path: "/greet",
+      name: "Greet",
+      component: Greet,
     },
     {
-      path: '/passenger-table',
-      name: 'PassengerTable',
-      component: PassengerTable
+      path: "/airline-table",
+      name: "AirlineTable",
+      component: AirlineTable,
     },
     {
-      path: '/form-passenger',
-      name: 'FormPassenger',
-      component: FormPassenger
+      path: "/passenger-table",
+      name: "PassengerTable",
+      component: PassengerTable,
     },
     {
-      path: '/form-airline',
-      name: 'FormAirline',
-      component: FormAirline
+      path: "/form-passenger",
+      name: "FormPassenger",
+      component: FormPassenger,
     },
     {
-      path: '/validate-form',
-      name: 'ValidateForm',
-      component: ValidateForm
+      path: "/form-airline",
+      name: "FormAirline",
+      component: FormAirline,
     },
     {
-      path: '/test',
-      name: 'Tets',
-      component: Test
+      path: "/validate-form",
+      name: "ValidateForm",
+      component: ValidateForm,
     },
     {
-      path: '/example',
-      name: 'Example',
-      component: Example
-    }
-
-    
-  ]
-})
+      path: "/example",
+      name: "Example",
+      component: Example,
+    },
+  ],
+});

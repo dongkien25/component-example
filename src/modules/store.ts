@@ -1,8 +1,8 @@
 import axios from "axios";
 import Vue from "vue";
 import Vuex from "vuex";
-import Airline from "../model/AirlineModel";
-import Passenger from '@/model/PassengerModel'
+import Airline from "../models/AirlineModel";
+import Passenger from '@/models/PassengerModel'
 
 import airlinesService from '@/services/airlinesService'
 import passengersService from '@/services/passengersService'
@@ -32,15 +32,24 @@ export default new Vuex.Store<State>({
     passengerList : Array<Passenger>(),
     isLoading: LoadingType.IDLE
   },
+  getters :{
+    allAirline: (state) => state.airlineList
+  },
   mutations: {
-    getListAirline(state: State, arilineList: Airline[]) {
-      state.airlineList = arilineList;
+    getListAirline(state: State, airlineList: Airline[]) {
+      state.airlineList = airlineList;
     },
     getListPassenger(state: State, passengerList: Passenger[]){
       state.passengerList = passengerList;
     },
     updateLoading(state: State, loading: LoadingType) {
       state.isLoading = loading
+    },
+    removePassenger(state: State,id:string) {
+      state.passengerList = state.passengerList.filter(passenger => passenger._id !== id)
+    },
+    newAirlines(state: State,airline: Airline){
+      state.airlineList.unshift(airline)
     },
     add(state,payload:number) {
         state.num +=payload   
@@ -63,6 +72,14 @@ export default new Vuex.Store<State>({
       console.log('response', response)
       commit("updateLoading", LoadingType.DONE)
       commit("getListPassenger", response.data.data);
+    },
+    async deletePassenger({commit},id:string) {
+      const response = await passengersService.deletePassenger(id);
+      commit('removePassenger',id)
+    },
+    async addAirline({commit},airline:Airline) {
+      const response = await airlinesService.postAirline(airline);
+      commit('newAirlines',airline);
     }
   },
 });

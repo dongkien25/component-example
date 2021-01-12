@@ -41,10 +41,16 @@
       <v-card>
         <v-card-title class="dialog-title">List of Airline</v-card-title>
         <v-divider></v-divider>
-        <v-item-group mandatory>
+        <div v-if="isLoading === 'loading'" class="spinner-load">
+        <v-progress-circular
+          indeterminate
+          color="primary"
+        ></v-progress-circular>
+         </div>
+        <v-item-group v-else mandatory>
           <v-row class="pl-5 ma-0">
             <v-col
-              v-for="(airline, index) in listAirline"
+              v-for="(airline, index) in listAirlines"
               :key="index"
               cols="12"
               md="6"
@@ -79,10 +85,12 @@
 </template>
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
-import Airline from '@/model/AirlineModel'
-import axios from 'axios'
+import Airline from '@/models/AirlineModel'
+import rules from "@/modules/rules"
+import { State, Mutation, Action } from "vuex-class";
+import { LoadingType } from "@/modules/store";
 
-const urlGet = "https://api.instantwebtools.net/v1/";
+
 @Component
 export default class ValidateForm extends Vue {
   date = new Date().toISOString().substr(0, 10);
@@ -90,14 +98,14 @@ export default class ValidateForm extends Vue {
   valid = true;
   selected = false;
   dialogListAirline = false;
-  listAirline: Airline[] = [];
   selectedAirline! :Airline;
   name = "";
   country = "";
-  nameRules = [
-    (v:string) => !!v || "Name is required",
-    (v:string) => (v && v.length <= 10) || "Name must be less than 10 characters",
-  ];
+  nameRules = rules.nameRules;
+  @State("isLoading") isLoading!: LoadingType;
+  @State("airlineList") listAirlines!: Airline[];
+  @Mutation("getListAirline") getAllAirline!: Function;
+  @Action("fetchAirlines") fetchAirlines!: any;
   $refs!: {
     form: HTMLFormElement
   }
@@ -112,15 +120,13 @@ export default class ValidateForm extends Vue {
     this.$refs.form.resetValidation();
   }
   mounted() {
-    axios.get<Airline[]>(`${urlGet}airlines`).then((response) => {
-      this.listAirline = response.data;
-    });
+    this.fetchAirlines()
   }
   showListAirline() {
     this.dialogListAirline = true;
   }
-  selectLogo(id:Airline) {
-    this.selectedAirline = id;
+  selectLogo(airline:Airline) {
+    this.selectedAirline = airline;
     this.selected = true;
     this.dialogListAirline = false;
   }

@@ -1,4 +1,4 @@
-import Passenger from "@/model/PassengerModel";
+import Passenger from "@/models/PassengerModel";
 
 export default class ResponsePassenger {
   totalPassengers: number;

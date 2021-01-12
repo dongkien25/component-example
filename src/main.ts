@@ -4,7 +4,7 @@ import router from './router'
 import vuetify from './plugins/vuetify';
 import Vuex from 'vuex' 
 
-import store from './module/store'
+import store from './modules/store'
 // import module from './module/state'
 Vue.use(Vuex)
 

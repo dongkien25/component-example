@@ -10,10 +10,6 @@
           <v-btn color="primary">Passenger Table</v-btn>
         </router-link>
 
-        <router-link class="btn-link" to="/test">
-          <v-btn color="primary">Test</v-btn>
-        </router-link>
-
         <router-link class="btn-link" to="/example">
           <v-btn color="primary">Example</v-btn>
         </router-link>

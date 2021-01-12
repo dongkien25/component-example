@@ -1,9 +1,18 @@
 import axios from "axios";
 
-export const baseUrl = "https://api.instantwebtools.net/v1/";
+import {baseUrl} from "./baseUrl"
+import Airline from '@/models/AirlineModel'
 
 export default {
   getAirlines: async () => {
     return axios.get(`${baseUrl}airlines`);
   },
+  deleteAirline: async (id:number) => {
+
+  },
+  postAirline: async (airline:Airline) => {
+     axios.post(`${baseUrl}airlines`,airline)
+     .then((response) => console.log(response))
+     .catch((error) => console.log(error))
+  }
 };

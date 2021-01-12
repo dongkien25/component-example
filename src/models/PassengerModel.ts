@@ -1,4 +1,4 @@
-import Airline from "@/model/AirlineModel";
+import Airline from "@/models/AirlineModel";
 
 export default class PassengerModel {
   _id: string;
