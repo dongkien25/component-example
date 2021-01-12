@@ -2,7 +2,7 @@
   <v-form ref="form" v-model="valid" class="form" lazy-validation>
     <v-text-field
       v-model="name"
-      counter="10"
+      counter="30"
       :rules="nameRules"
       label="Name"
       clearable
@@ -15,12 +15,12 @@
       label="Country"
       outlined
     ></v-text-field>
-    <v-file-input accept="image/*" label="Select a logo"></v-file-input>
+    <v-file-input accept="image/*" label="Select a logo" v-model="logo"></v-file-input>
 
     <v-text-field
-      v-model="Slogan"
+      v-model="slogan"
       :rules="[(v) => !!v || 'Item is required']"
-      label="Slogan"
+      label="slogan"
       outlined
     ></v-text-field>
 
@@ -73,26 +73,45 @@
 <script lang="ts">
 import { Vue, Component, Prop } from "vue-property-decorator";
 import { State, Mutation, Action } from "vuex-class";
-
+import Airline from '@/models/AirlineModel'
 import rules from "@/modules/rules";
 @Component
 export default class ValidateForm extends Vue {
   date = new Date().toISOString().substr(0, 10);
+  airline = new Airline
   menu = false;
   valid = true;
   name = "";
   country = "";
   head_quaters = "";
-  Slogan = "";
+  slogan = "";
   website = "";
+  logo = "";
   email = "";
+  established="";
   nameRules = rules.nameRules;
   webRules = rules.webRules;
+ 
+  @Action("addAirline") addAirline: any
   $refs!: {
     form: HTMLFormElement;
   };
   validate() {
+    this.airline = {
+      id: 12,
+      name: this.name,
+      country: this.country,
+      logo: this.logo,
+      slogan: this.slogan,
+      head_quaters: this.head_quaters,
+      website: this.website,
+      established: this.date,
+
+    }
+    console.log("date: " + this.date)
     this.$refs.form.validate();
+    this.addAirline(this.airline)
+    
   }
   reset() {
     this.$refs.form.reset();
