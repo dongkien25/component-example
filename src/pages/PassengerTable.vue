@@ -21,7 +21,12 @@
             <td>{{ passenger.name }}</td>
             <td>{{ passenger.trips }}</td>
             <td>
-              <img class="img-logo" :src="passenger.airline.logo" alt="" />
+              <img
+                v-if="passenger.contentAirline"
+                class="img-logo"
+                :src="passenger.contentAirline.logo"
+                alt=""
+              />
             </td>
             <td>
               <div class="group-btn">
@@ -66,6 +71,7 @@
     ></DialogDelete>
 
     <DialogDetail
+      v-if="listDetailContent"
       :dialogDetail="dialogDetail"
       @closeDetailDialog="dialogDetail = false"
       itemType="Passenger"
@@ -91,16 +97,14 @@ import Airline from "@/models/AirlineModel";
 import ResponsePassenger from "@/models/ResponsePassenger";
 import DialogDetail from "@/components/DialogDetail.vue";
 import DialogEditPassenger from "@/components/DialogEditPassenger.vue";
-const urlGet = "https://api.instantwebtools.net/v1/";
-const axios = require("axios");
-const defaultPassenger = {
-  _id: "",
-  name: "",
-  trips: 0,
-  airline: new Airline(),
-};
-const defaultListDetailContent = ["", "", 0, ""];
-
+// const defaultPassenger = {
+//   _id: "",
+//   name: "",
+//   trips: 0,
+//   airline: new Airline(),
+// };
+// const defaultListDetailContent = ["", "", 0, ""];
+type Detail = string | number | undefined;
 @Component({
   components: {
     DialogDelete,
@@ -110,15 +114,15 @@ const defaultListDetailContent = ["", "", 0, ""];
 })
 export default class PassengerTale extends Vue {
   listDetailTitle = ["id", "name", "trips", "airline"];
-  listDetailContent = defaultListDetailContent;
+  listDetailContent?: Detail[];
   dialogDelete = false;
   dialogDetail = false;
   dialogEdit = false;
-  airline!: Airline;
+  airline?: Airline;
 
   valid = true;
 
-  passenger = defaultPassenger;
+  passenger = new Passenger();
 
   @State("isLoading") isLoading!: LoadingType;
   @State("passengerList") listPassenger!: Passenger[];
@@ -130,49 +134,57 @@ export default class PassengerTale extends Vue {
   @Action("deletePassenger") deletePassenger: any;
   @Action("fetchAirlines") fetchAirlines: any;
   getPage(page: number, size: number) {
-    axios
-      .get(`${urlGet}passenger?page=${page}&size=${size}`)
-      .then((response: any) => {
-        this.listPassenger = response.data.data;
-      });
+    // axios
+    //   .get(`${urlGet}passenger?page=${page}&size=${size}`)
+    //   .then((response: any) => {
+    //     this.listPassenger = response.data.data;
+    //   });
   }
-  getById(id: string) {
+  getById(id?: string) {
     for (let passenger of this.listPassenger) {
       if (passenger._id === id) {
         this.passenger = passenger;
-        this.airline = passenger.airline;
+        this.airline = passenger.contentAirline;
       }
     }
   }
   created() {
     this.fetchPassenger();
   }
-  finishDeletePassenger(id: string) {
+  finishDeletePassenger(id?: string) {
     this.deletePassenger(id);
     this.dialogDelete = false;
   }
-  showDialogDetail(id: string) {
+  showDialogDetail(id?: string) {
     this.getById(id);
-    this.listDetailContent = [
-      this.passenger._id,
-      this.passenger.name,
-      this.passenger.name,
-      this.airline.logo,
-    ];
+    if (this.airline) {
+      this.listDetailContent = [
+        this.passenger._id,
+        this.passenger.name,
+        this.passenger.name,
+        this.airline.logo,
+      ];
+    } else {
+      this.listDetailContent = [
+        this.passenger._id,
+        this.passenger.name,
+        this.passenger.name,
+      ];
+    }
+
     console.log("listDetail", this.listDetailContent);
     this.dialogDetail = true;
   }
-  showDialogEdit(id: string) {
+  showDialogEdit(id?: string) {
     this.getById(id);
     this.dialogEdit = true;
     console.log(this.passenger);
   }
-  showDialogDelte(id: string) {
+  showDialogDelte(id?: string) {
     this.getById(id);
     this.dialogDelete = true;
     console.log("passengerID", this.passenger._id);
   }
- 
 }
 </script>
 

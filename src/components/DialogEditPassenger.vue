@@ -14,7 +14,7 @@
           ></v-text-field>
           <div class="">
             <img v-if="selected" :src="selectedAirline.logo" />
-            <img v-else :src="passenger.airline.logo" />
+            <img v-else-if="passenger.contentAirline" :src="passenger.contentAirline.logo" />
           </div>
 
           <v-btn @click="showListAirline()" class="pick-airline-btn">

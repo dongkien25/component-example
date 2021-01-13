@@ -63,6 +63,7 @@
     ></DialogDelete>
 
     <DialogDetail
+      v-if="listDetailContent"
       :dialogDetail="dialogDetail"
       @closeDetailDialog="dialogDetail = false"
       :itemType="itemType"
@@ -87,17 +88,19 @@ import { LoadingType } from "@/modules/store";
 import Airline from "@/models/AirlineModel";
 import DialogDetail from "@/components/DialogDetail.vue";
 import DialogEditAirline from "@/components/DialogEditAirline.vue";
-const defaultAriline = {
-  id: 1,
-  name: "",
-  country: "",
-  logo: "",
-  slogan: "",
-  head_quaters: "",
-  website: "",
-  established: "",
-};
-const defaultListDetailContent = [0, "", "", ""];
+// const defaultAriline = {
+//   id: 1,
+//   name: "",
+//   country: "",
+//   logo: "",
+//   slogan: "",
+//   head_quaters: "",
+//   website: "",
+//   established: "",
+// };
+// const defaultListDetailContent = [0, "", "", ""];
+
+type Detail = string | number | undefined
 
 @Component({
   components: {
@@ -113,7 +116,7 @@ export default class AirlineTable extends Vue {
   @Action("fetchAirlines") fetchAirlines!: any;
 
   listDetailTitle = ["id", "name", "country", "logo"];
-  listDetailContent = defaultListDetailContent;
+  listDetailContent?: Detail[];
   dialogDelete = false;
   dialogDetail = false;
   dialogEdit = false;
@@ -121,7 +124,7 @@ export default class AirlineTable extends Vue {
   imgUrl = "";
   valid = true;
   menu = false;
-  airline = defaultAriline;
+  airline = new Airline();
   name = "";
   country = "";
   email = "";
@@ -129,7 +132,7 @@ export default class AirlineTable extends Vue {
   totalPage = 0;
   size = 50;
   numPage() {}
-  getById(id: number) {
+  getById(id?: number) {
     for (let row of this.listAirlines) {
       if (row.id === id) {
         this.airline = row;
@@ -153,8 +156,7 @@ export default class AirlineTable extends Vue {
     console.log("list ariline", this.listAirlines);
   }
 
-  onSubmit() {}
-  displayDetailDialog(id: number) {
+  displayDetailDialog(id?: number) {
     this.getById(id);
     this.listDetailContent = [
       this.airline.id,
@@ -164,7 +166,7 @@ export default class AirlineTable extends Vue {
     ];
     this.dialogDetail = true;
   }
-  displayEditDialog(id: number) {
+  displayEditDialog(id?: number) {
     this.getById(id);
     this.dialogEdit = true;
   }

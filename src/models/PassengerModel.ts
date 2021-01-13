@@ -1,15 +1,16 @@
 import Airline from "@/models/AirlineModel";
 
 export default class PassengerModel {
-  _id: string;
+  _id?: string;
   name: string;
   trips: number;
-  airline: Airline;
+  contentAirline?: Airline;
+  airline?: number;
 
   constructor() {
     this._id = '';
     this.name = '';
     this.trips = 0;
-    this.airline = new Airline;
+    this.contentAirline = new Airline;
   }
 }

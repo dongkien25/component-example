@@ -45,10 +45,10 @@
 import { Vue, Component, Prop } from "vue-property-decorator";
 @Component
 export default class DialogDetail extends Vue {
-  @Prop() dialogDetail: boolean=false;
+  @Prop() dialogDetail!: boolean;
   @Prop() itemType!: string;
   @Prop() listDetailTitle!: Array<string | number>;
-  @Prop() listDetailContent!: Array<string | number>;
+  @Prop() listDetailContent!: Array<string | number | undefined>;
    
   closeDetailDialog(){
     this.$emit('closeDetailDialog')

@@ -1,5 +1,5 @@
 export default class AirlineModel {
-  id: number;
+  id?: number;
   name: string;
   country: string;
   logo: string;
@@ -18,4 +18,5 @@ export default class AirlineModel {
     this.website = "";
     this.established = "";
   }
+  
 }
